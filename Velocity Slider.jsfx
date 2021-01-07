@@ -1,0 +1,30 @@
+desc: Velocity Slider
+slider1:vel=1< 1,127,1> Preset velocity
+options:gmem=ddddddddddddddddddsgd334f3e_____________________gh
+ 
+@init
+// ikke under avspilling
+gmem[0]=vel;
+//gmem[8]=1; // Im running
+
+@slider
+
+gmem[0] = vel;
+gmem[12] = 1;
+ 
+ 
+@block
+
+  (gmem[9] == 1)?(
+     gmem[9] = 0;
+     gmem[0] = vel;
+  );
+  
+  (gmem[13] == 1)?(
+     gmem[13]==0;
+  );
+  
+  
+@sample //Pass-through audio
+  spl0 = spl0;
+  spl1 = spl1;
