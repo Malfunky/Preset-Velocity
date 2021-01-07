@@ -26,7 +26,7 @@ fxname = "Note Preview"
 fxname2 = "Velocity Slider" 
 sectionID = 0
 
-local debug=true
+local debug=false
 function msg(g)
   if debug then 
      reaper.ShowConsoleMsg(tostring(g).."\n")
