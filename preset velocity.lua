@@ -1,15 +1,30 @@
+-------------------------------------------------------
+-- SETS THE VELOCITY OF INSERTED NOTES TO A PRESET VALUE IN A JSFX 
+-- THIS SCRIPT MANAGES THE LOADING AND MOVING AROUND OF THE NOTE PREVIEW JSFX
+-- THIS SCRIPT SHOULD BE LOADED INTO THE MAIN SECTION
+-- THE VELOCITY SLIDER IS NOT REMOVED WHEN SCRIPT IS CANCELLED.
+-- SO THAT YOU CAN KEEP YOUR MIDI LEARN SETTINGS 
+-- RECOMMENDED SETTINGS -->PREFERENCES -> EDITING BEHAVOIR -> MIDI EDITOR
+-- ACTIVE MIDI ITEM FOLLOw SELECTON CHANGES IN ARRANGE VIEW [X] 
+-- SELECTION IS LINKED TO EDITABILITY [X]
+--------------------------------------------------------------------
+ 
+
+-----------USER SETTINGS-----------------------
+change_velocity_when_selecting_note = true 
+change_velocity_when_adjusting_velocity = true
+change_velocity_with_slider  = true   -- possible when more than 2 notes are selected
+change_velocity_on_last_selected_note = true 
+go_back_to_slider_value_when_deleting_notes = false
+set_slider_velocity_when_switching_take=true 
+----------------------------------------------------
+
 local name = "ddddddddddddddddddsgd334f3e_____________________gh" 
 
 reaper.gmem_attach(name)  
 fxname = "Note Preview" 
-filename = "preset velocity.lua"
-
-change_velocity_when_selecting_note = true 
-change_velocity_when_adjusting_velocity = true
-change_velocity_with_slider  = true   -- when more than 2 notes are selected
-change_velocity_on_last_selected_note = true 
-go_back_to_slider_value_when_deleting_notes = false
-set_slider_velocity_when_switching_take=true 
+fxname2 = "Velocity Slider" 
+sectionID = 0
 
 local debug=true
 function msg(g)
@@ -18,7 +33,7 @@ function msg(g)
   end
 end 
  
-local bs = reaper.SetToggleCommandState(32060,({reaper.get_action_context()})[4],1) 
+local bs = reaper.SetToggleCommandState(sectionID ,({reaper.get_action_context()})[4],1) 
 
 function update()
   _trk=trk
@@ -32,7 +47,10 @@ function update()
   end
    _,cnt,_,_ = reaper.MIDI_CountEvts(take)  
    _, newhash  = reaper.MIDI_GetHash( take, true, "" ) -- notesonly = true
-  return reaper.defer(main)
+  return reaper.defer( function()
+                          selnotes=count_selected_notes() 
+                          return reaper.defer(main)
+  end)
 end 
 
 function main() 
@@ -140,9 +158,12 @@ function checkMIDI()
 end 
 
 reaper.atexit( function() 
-  del(trk)
+  for i=0 , reaper.CountTracks(0) do
+     trk=reaper.GetTrack(0,i)
+     del(trk) 
+  end
   msg("Atexit")
-  reaper.SetToggleCommandState(32060,({reaper.get_action_context()})[4],0) 
+  reaper.SetToggleCommandState(sectionID ,({reaper.get_action_context()})[4],0) 
   reaper.gmem_attach("")
 end) 
 
@@ -157,6 +178,7 @@ end
  
 function del(tr) -- delete the preview fx
   if tr==nil then 
+    if take==nil then return end
     tr=reaper.GetMediaItemTake_Track(take)
   end
     for i=0 , reaper.TrackFX_GetCount(tr)  do 
@@ -176,7 +198,7 @@ function detect()
        for j=0,reaper.TrackFX_GetCount( track)-1 do
            retval, buf = reaper.TrackFX_GetFXName( track,j,"") 
            msg("buf = "..buf)
-           if buf:find(fxname) then 
+           if buf:find(fxname2) then 
               return track
            end
        end
@@ -188,7 +210,7 @@ function detect()
       track = reaper.GetTrack(0,0)
    end
 
-   local number = reaper.TrackFX_AddByName( track, fxname,0,-1)  -- there seem to be a problem with boolean values 
+   local number = reaper.TrackFX_AddByName( track, fxname2,0,-1)    
    if number==-1 then 
      msg("Unable to find an fx with name : "..fxname)
      return  

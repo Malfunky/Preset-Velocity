@@ -1,13 +1,11 @@
 desc: Note Preview
  
-options:ddddddddddddddddddsgd334f3e_____________________gh
+options:gmem=ddddddddddddddddddsgd334f3e_____________________gh
 @init
  
    gmem[15]=0;
 @slider
 
- 
- 
 @block
 
 while (midirecv(offset,msg1,msg2,msg3)) (
