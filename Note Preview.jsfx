@@ -3,7 +3,6 @@ desc: Note Preview
 options:gmem=ddddddddddddddddddsgd334f3e_____________________gh
 @init
  
-   gmem[15]=0;
 @slider
 
 @block
